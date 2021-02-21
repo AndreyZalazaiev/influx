@@ -18,7 +18,6 @@ import java.util.UUID;
 
 @Service
 public class JwtUserDetailsService implements UserDetailsService {
-
     @Autowired
     MailSender mailSender;
     @Autowired

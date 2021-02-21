@@ -13,9 +13,15 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Entity
-@AllArgsConstructor
 public class Resource extends BaseEntity {
     String name;
+
+    public Resource(String name, String price, Integer idCompany) {
+        this.name = name;
+        this.price = price;
+        this.idCompany = idCompany;
+    }
+
     String price;
     @Column(nullable = false)
     Integer idCompany;
