@@ -8,6 +8,7 @@ import andrew.projects.influx.Repos.CompanyRepo;
 import andrew.projects.influx.Repos.ResourceRepo;
 import andrew.projects.influx.Repos.UserRepo;
 import andrew.projects.influx.Service.CompanyService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,7 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/resources")
+@RequestMapping("/resource")
 public class ResourceController {
     private final ResourceRepo resourceRepo;
     private final CompanyRepo companyRepo;
@@ -28,7 +29,7 @@ public class ResourceController {
     }
 
     @GetMapping("/{idCompany}")
-    public ResponseEntity<?> getResources(HttpServletRequest req, @PathVariable Integer idCompany) {
+    public ResponseEntity<?> getResources(@PathVariable Integer idCompany) {
         return ResponseEntity.ok(resourceRepo.getAllByIdCompany(idCompany));
     }
 
@@ -44,19 +45,20 @@ public class ResourceController {
             }
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.badRequest().build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
     @DeleteMapping("/{idResource}")
     public ResponseEntity<?> deleteResource(HttpServletRequest req, @PathVariable Integer idResource) {
         Optional<User> currentUser = userRepo.findByUsername(JwtTokenUtil.obtainUserName(req));
         Optional<Resource> currentResource =resourceRepo.findById(idResource);
+
         if(currentUser.isPresent() && currentResource.isPresent()) {
             if(companyRepo.findById(currentResource.get().getIdCompany()).get().getIdUser().equals(currentUser.get().getId())){
                return ResponseEntity.ok().build();
             }
         }
-        return ResponseEntity.badRequest().body("Non company owner");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
 }

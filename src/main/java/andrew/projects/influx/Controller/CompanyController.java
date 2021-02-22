@@ -55,7 +55,7 @@ public class CompanyController {
             companyRepo.deleteInBatch(Collections.singletonList(company));
             return ResponseEntity.ok("Deleted");
         }
-        return ResponseEntity.badRequest().body("Non company owner");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
 

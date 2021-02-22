@@ -23,7 +23,7 @@ import java.util.Optional;
 public class JwtAuthenticationController {
 
     @Autowired
-    UserRepo userRepo;
+    private UserRepo userRepo;
     @Autowired
     private AuthenticationManager authenticationManager;
     @Autowired
