@@ -39,7 +39,7 @@ public class DeviceController {
 
         if (locatedCompany.isPresent() && currentUser.isPresent()) {
             if (locatedCompany.get().getIdUser().equals(currentUser.get().getId())) {
-                deviceRepo.save(device);
+                return  ResponseEntity.ok(deviceRepo.save(device));
             }
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();

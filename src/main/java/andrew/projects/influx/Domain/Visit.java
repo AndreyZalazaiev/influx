@@ -1,6 +1,6 @@
 package andrew.projects.influx.Domain;
 
-import andrew.projects.influx.Service.CustomDateInternatsionalizator;
+import andrew.projects.influx.Service.CustomLocalDateInternatsionalizator;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,13 +10,13 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 
 @Getter
 @Setter
-@NoArgsConstructor
 @Entity
+@NoArgsConstructor
 @AllArgsConstructor
 public class Visit extends BaseEntity {
     @Column(nullable = false)
@@ -24,9 +24,7 @@ public class Visit extends BaseEntity {
     @Column(columnDefinition = "int default 0")
     private Integer count;
     @CreationTimestamp
-    @JsonSerialize(using  = CustomDateInternatsionalizator.class)
+    @JsonSerialize(using = CustomLocalDateInternatsionalizator.class)
     @Column(nullable = false,updatable = false)
-    LocalDateTime date;
-
-
+    LocalDate date;
 }

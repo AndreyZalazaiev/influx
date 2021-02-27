@@ -8,6 +8,7 @@ import andrew.projects.influx.Repos.CompanyRepo;
 import andrew.projects.influx.Repos.ResourceRepo;
 import andrew.projects.influx.Repos.UserRepo;
 import andrew.projects.influx.Service.CompanyService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,11 +22,13 @@ public class ResourceController {
     private final ResourceRepo resourceRepo;
     private final CompanyRepo companyRepo;
     private final UserRepo userRepo;
+    private final CompanyService companyService;
 
-    public ResourceController(ResourceRepo resourceRepo, CompanyRepo companyRepo, UserRepo userRepo) {
+    public ResourceController(ResourceRepo resourceRepo, CompanyRepo companyRepo, UserRepo userRepo, CompanyService companyService) {
         this.resourceRepo = resourceRepo;
         this.companyRepo = companyRepo;
         this.userRepo = userRepo;
+        this.companyService = companyService;
     }
 
     @GetMapping("/{idCompany}")
@@ -39,7 +42,7 @@ public class ResourceController {
         Optional<Company> currentCompany = companyRepo.findById(resource.getIdCompany());
 
         if (currentUser.isPresent() && currentCompany.isPresent()) {
-            if (CompanyService.hasRightsToManipulateCompany(currentCompany.get(), currentUser.get())) {
+            if (companyService.hasRightsToManipulateCompany(currentCompany.get(), currentUser.get())) {
                 Resource r = new Resource(resource.getName(), resource.getPrice(), resource.getIdCompany());
                 return ResponseEntity.ok(resourceRepo.save(r));
             }

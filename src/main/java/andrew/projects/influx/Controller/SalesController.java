@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/sale")
+@RequestMapping("/sales")
 public class SalesController {
     final SalesRepo salesRepo;
     final UserRepo userRepo;
@@ -37,7 +37,7 @@ public class SalesController {
 
         if (locatedCompany.isPresent() && currentUser.isPresent()) {
             if (locatedCompany.get().getIdUser().equals(currentUser.get().getId())) {
-                salesRepo.save(sales);
+                return ResponseEntity.ok(salesRepo.save(sales));
             }
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();

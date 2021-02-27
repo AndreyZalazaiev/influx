@@ -1,6 +1,6 @@
 package andrew.projects.influx.Domain;
 
-import andrew.projects.influx.Service.CustomDateInternatsionalizator;
+import andrew.projects.influx.Service.CustomLocalDateTimeInternatsionalizator;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,7 +20,7 @@ public class Recommendation extends BaseEntity {
     @Column(nullable = false)
     Integer idCompany;
     String text;
-    @JsonSerialize(using  = CustomDateInternatsionalizator.class)
+    @JsonSerialize(using  = CustomLocalDateTimeInternatsionalizator.class)
     LocalDateTime date;
     @Column(columnDefinition = "int default 7")
     private Integer period;

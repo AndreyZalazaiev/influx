@@ -13,7 +13,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 @Component
-public class CustomDateInternatsionalizator extends JsonSerializer<LocalDateTime> {
+public class CustomLocalDateTimeInternatsionalizator extends JsonSerializer<LocalDateTime> {
 
     @Override
     public void serialize(LocalDateTime localDateTime, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {

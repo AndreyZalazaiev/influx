@@ -33,33 +33,5 @@ public class RecommendationController {
         return ResponseEntity.ok(recommendationRepo.findAllByIdCompany(idCompany));
     }
 
-    @PostMapping
-    public ResponseEntity<?> addRecommendation(HttpServletRequest req, @RequestBody Recommendation recommendation) {
-        Optional<User> currentUser = userRepo.findByUsername(JwtTokenUtil.obtainUserName(req));
-        Optional<Company> locatedCompany = companyRepo.findById(recommendation.getIdCompany());
 
-        if (locatedCompany.isPresent() && currentUser.isPresent()) {
-            if (locatedCompany.get().getIdUser().equals(currentUser.get().getId())) {
-                recommendationRepo.save(recommendation);
-            }
-        }
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-    }
-
-    @DeleteMapping("/{idRecommendation}")
-    public ResponseEntity<?> deleteRecommendation(HttpServletRequest req, @PathVariable int idRecommendation) {
-        Optional<User> currentUser = userRepo.findByUsername(JwtTokenUtil.obtainUserName(req));
-        Optional<Recommendation> recommendation = recommendationRepo.findById(idRecommendation);
-
-        if (currentUser.isPresent() && recommendation.isPresent()) {
-            Optional<Company> locatedCompany = companyRepo.findById(recommendation.get().getIdCompany());
-
-            if (locatedCompany.isPresent()) {
-                if (locatedCompany.get().getIdUser().equals(currentUser.get().getId())) {
-                    recommendationRepo.delete(recommendation.get());
-                }
-            }
-        }
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-    }
 }

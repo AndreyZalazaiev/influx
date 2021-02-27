@@ -1,6 +1,6 @@
 package andrew.projects.influx.Domain;
 
-import andrew.projects.influx.Service.CustomDateInternatsionalizator;
+import andrew.projects.influx.Service.CustomLocalDateTimeInternatsionalizator;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,7 +21,7 @@ public class Sales extends BaseEntity {
     @Column(nullable = false)
     Integer idResource;
     @CreationTimestamp
-    @JsonSerialize(using  = CustomDateInternatsionalizator.class)
+    @JsonSerialize(using  = CustomLocalDateTimeInternatsionalizator.class)
     @Column(nullable = false,updatable = false)
     LocalDateTime date;
     @Column(nullable = false)

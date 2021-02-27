@@ -6,6 +6,8 @@ import andrew.projects.influx.Domain.User;
 import andrew.projects.influx.Repos.CompanyRepo;
 import andrew.projects.influx.Repos.UserRepo;
 import andrew.projects.influx.Service.CompanyService;
+import io.swagger.annotations.ApiParam;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,10 +21,12 @@ import java.util.Optional;
 public class CompanyController {
     private final CompanyRepo companyRepo;
     private final UserRepo userRepo;
+    private final CompanyService companyService;
 
-    public CompanyController(CompanyRepo companyRepo, UserRepo userRepo) {
+    public CompanyController(CompanyRepo companyRepo, UserRepo userRepo, CompanyService companyService) {
         this.companyRepo = companyRepo;
         this.userRepo = userRepo;
+        this.companyService = companyService;
     }
 
     @GetMapping
@@ -35,11 +39,11 @@ public class CompanyController {
     }
 
     @PostMapping
-    public ResponseEntity<?> postCompany(HttpServletRequest req, @RequestBody Company company) {
+    public ResponseEntity<?> postCompany(HttpServletRequest req,  @RequestBody Company company) {
         User current = userRepo.findByUsername(JwtTokenUtil.obtainUserName(req)).get();
         company.setIdUser(current.getId());
 
-        if ((CompanyService.hasRightsToManipulateCompany(company, current))) {
+        if ((companyService.hasRightsToManipulateCompany(company, current))) {
             Company stored = companyRepo.findById(company.getId()).get();
             stored.setName(company.getName());
             return ResponseEntity.ok(companyRepo.save(stored));
@@ -51,7 +55,7 @@ public class CompanyController {
     public ResponseEntity<?> deleteCompany(HttpServletRequest req, @RequestBody Company company) {
         User current = userRepo.findByUsername(JwtTokenUtil.obtainUserName(req)).get();
 
-        if (CompanyService.hasRightsToManipulateCompany(company, current)) {
+        if (companyService.hasRightsToManipulateCompany(company, current)) {
             companyRepo.deleteInBatch(Collections.singletonList(company));
             return ResponseEntity.ok("Deleted");
         }

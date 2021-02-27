@@ -2,14 +2,12 @@ package andrew.projects.influx.Controller;
 
 import andrew.projects.influx.Config.JwtTokenUtil;
 import andrew.projects.influx.Domain.Company;
-import andrew.projects.influx.Domain.Recommendation;
 import andrew.projects.influx.Domain.User;
 import andrew.projects.influx.Domain.Visit;
 import andrew.projects.influx.Repos.CompanyRepo;
-import andrew.projects.influx.Repos.RecommendationRepo;
 import andrew.projects.influx.Repos.UserRepo;
 import andrew.projects.influx.Repos.VisitRepo;
-import org.springframework.beans.factory.annotation.Autowired;
+import andrew.projects.influx.Service.VisitService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,11 +21,13 @@ public class VisitController {
     final VisitRepo visitRepo;
     final UserRepo userRepo;
     final CompanyRepo companyRepo;
+    final VisitService visitService;
 
-    public VisitController(VisitRepo visitRepo, UserRepo userRepo, CompanyRepo companyRepo) {
+    public VisitController(VisitRepo visitRepo, UserRepo userRepo, CompanyRepo companyRepo, VisitService visitService) {
         this.visitRepo = visitRepo;
         this.userRepo = userRepo;
         this.companyRepo = companyRepo;
+        this.visitService = visitService;
     }
 
 
@@ -42,8 +42,13 @@ public class VisitController {
         Optional<Company> locatedCompany = companyRepo.findById(visit.getIdCompany());
 
         if (locatedCompany.isPresent() && currentUser.isPresent()) {
-            if (locatedCompany.get().getIdUser().equals(currentUser.get().getId())) {
-                visitRepo.save(visit);
+            if (locatedCompany.get().getId() == currentUser.get().getId()) {
+
+                if (visitService.isVisitPresent(visit)) {
+                    return ResponseEntity.ok(visitService.updateVisitCounter(visit));
+                } else {
+                    return ResponseEntity.ok(visitService.createNewVisit(locatedCompany.get()));
+                }
             }
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
