@@ -8,6 +8,7 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -21,13 +22,13 @@ public class Company extends BaseEntity {
     private String name;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "idCompany", referencedColumnName = "id")
-    private List<Recommendation> recommendations = new ArrayList<>();
+    private Set<Recommendation> recommendations;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "idCompany", referencedColumnName = "id")
-    private List<Resource> resources = new ArrayList<>();
+    private Set<Resource> resources;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "idCompany", referencedColumnName = "id")
-    private List<Sales> sales = new ArrayList<>();
+    private Set<Sales> sales ;
 
 
 }

@@ -7,6 +7,7 @@ import andrew.projects.influx.Domain.User;
 import andrew.projects.influx.Repos.CompanyRepo;
 import andrew.projects.influx.Repos.RecommendationRepo;
 import andrew.projects.influx.Repos.UserRepo;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,16 +17,11 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/recommendation")
+@RequiredArgsConstructor
 public class RecommendationController {
-    final RecommendationRepo recommendationRepo;
-    final UserRepo userRepo;
-    final CompanyRepo companyRepo;
-
-    public RecommendationController(RecommendationRepo recommendationRepo, UserRepo userRepo, CompanyRepo companyRepo) {
-        this.recommendationRepo = recommendationRepo;
-        this.userRepo = userRepo;
-        this.companyRepo = companyRepo;
-    }
+   private final RecommendationRepo recommendationRepo;
+   private final UserRepo userRepo;
+   private final CompanyRepo companyRepo;
 
 
     @GetMapping("/{idCompany}")

@@ -4,10 +4,12 @@ import andrew.projects.influx.Config.JwtTokenUtil;
 import andrew.projects.influx.Domain.Company;
 import andrew.projects.influx.Domain.User;
 import andrew.projects.influx.Domain.Visit;
+import andrew.projects.influx.Exception.ObjectNotFound;
 import andrew.projects.influx.Repos.CompanyRepo;
 import andrew.projects.influx.Repos.UserRepo;
 import andrew.projects.influx.Repos.VisitRepo;
 import andrew.projects.influx.Service.VisitService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,19 +19,12 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/visit")
+@RequiredArgsConstructor
 public class VisitController {
-    final VisitRepo visitRepo;
-    final UserRepo userRepo;
-    final CompanyRepo companyRepo;
-    final VisitService visitService;
-
-    public VisitController(VisitRepo visitRepo, UserRepo userRepo, CompanyRepo companyRepo, VisitService visitService) {
-        this.visitRepo = visitRepo;
-        this.userRepo = userRepo;
-        this.companyRepo = companyRepo;
-        this.visitService = visitService;
-    }
-
+    private final VisitRepo visitRepo;
+    private final UserRepo userRepo;
+    private final CompanyRepo companyRepo;
+    private final VisitService visitService;
 
     @GetMapping("/{idCompany}")
     public ResponseEntity<?> getVisits(@PathVariable int idCompany) {
@@ -37,7 +32,7 @@ public class VisitController {
     }
 
     @PostMapping
-    public ResponseEntity<?> addVisit(HttpServletRequest req, @RequestBody Visit visit) {
+    public ResponseEntity<?> createVisit(HttpServletRequest req, @RequestBody Visit visit) {
         Optional<User> currentUser = userRepo.findByUsername(JwtTokenUtil.obtainUserName(req));
         Optional<Company> locatedCompany = companyRepo.findById(visit.getIdCompany());
 
@@ -51,7 +46,27 @@ public class VisitController {
                 }
             }
         }
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        return ResponseEntity.ok(new ObjectNotFound("Visit does not exist").getMessage());
+    }
+    @PutMapping("/{idVisit}")
+    public ResponseEntity<?> updateVisit(HttpServletRequest req, @RequestBody Visit visit,@PathVariable int idVisit) {
+        Optional<User> currentUser = userRepo.findByUsername(JwtTokenUtil.obtainUserName(req));
+        Optional<Company> locatedCompany = companyRepo.findById(visit.getIdCompany());
+
+        if (locatedCompany.isPresent() && currentUser.isPresent()) {
+            if (locatedCompany.get().getId() == currentUser.get().getId()) {
+
+                if (visitService.isVisitPresent(visit)) {
+                    Visit stored =visitRepo.findById(idVisit).get();
+                    stored.setCount(visit.getCount());
+                    stored.setDate(visit.getDate());
+                    stored.setIdCompany(visit.getIdCompany());
+
+                    return ResponseEntity.ok(visitRepo.save(stored));
+                }
+            }
+        }
+        return ResponseEntity.ok(new ObjectNotFound("Visit does not exist").getMessage());
     }
 
     @DeleteMapping("/{idVisit}")
@@ -64,10 +79,11 @@ public class VisitController {
 
             if (locatedCompany.isPresent()) {
                 if (locatedCompany.get().getIdUser().equals(currentUser.get().getId())) {
-                    visitRepo.delete(recommendation.get());
+                    visitRepo.deleteById(idVisit);
+                    return ResponseEntity.ok("Deleted visit with id " + idVisit);
                 }
             }
         }
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        return ResponseEntity.ok(new ObjectNotFound("Visit does not exist").getMessage());
     }
 }

@@ -10,6 +10,7 @@ import java.util.Optional;
 
 public interface CompanyRepo extends JpaRepository<Company, Integer> {
     Iterable<Company> getAllByIdUser(@Param("IdUser") int IdUser);
+    Optional<Company> getCompanyByIdAndAndIdUser(int idCompany, int idUser);
 
     @Override
     @Transactional

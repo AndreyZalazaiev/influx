@@ -3,31 +3,24 @@ package andrew.projects.influx.Controller;
 import andrew.projects.influx.Config.JwtTokenUtil;
 import andrew.projects.influx.Domain.Company;
 import andrew.projects.influx.Domain.User;
+import andrew.projects.influx.Exception.ObjectNotFound;
 import andrew.projects.influx.Repos.CompanyRepo;
 import andrew.projects.influx.Repos.UserRepo;
-import andrew.projects.influx.Service.CompanyService;
-import io.swagger.annotations.ApiParam;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Collections;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/company")
+@RequiredArgsConstructor
 public class CompanyController {
     private final CompanyRepo companyRepo;
     private final UserRepo userRepo;
-    private final CompanyService companyService;
 
-    public CompanyController(CompanyRepo companyRepo, UserRepo userRepo, CompanyService companyService) {
-        this.companyRepo = companyRepo;
-        this.userRepo = userRepo;
-        this.companyService = companyService;
-    }
 
     @GetMapping
     public ResponseEntity<?> getCompanies(HttpServletRequest req) {
@@ -38,28 +31,40 @@ public class CompanyController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
+    @GetMapping("/{idCompany}")
+    public ResponseEntity<?> getCompany(HttpServletRequest req, @PathVariable int idCompany) throws ObjectNotFound {
+        return ResponseEntity.ok(companyRepo.findById(idCompany)
+                .orElseThrow(() -> new ObjectNotFound("Company does not exist")));
+    }
+
     @PostMapping
-    public ResponseEntity<?> postCompany(HttpServletRequest req,  @RequestBody Company company) {
+    public ResponseEntity<?> createCompany(HttpServletRequest req, @RequestBody Company company) {
         User current = userRepo.findByUsername(JwtTokenUtil.obtainUserName(req)).get();
         company.setIdUser(current.getId());
-
-        if ((companyService.hasRightsToManipulateCompany(company, current))) {
-            Company stored = companyRepo.findById(company.getId()).get();
-            stored.setName(company.getName());
-            return ResponseEntity.ok(companyRepo.save(stored));
-        }
         return ResponseEntity.ok(companyRepo.save(company));
     }
 
-    @DeleteMapping
-    public ResponseEntity<?> deleteCompany(HttpServletRequest req, @RequestBody Company company) {
+    @PutMapping("/{idCompany}")
+    public ResponseEntity<?> updateCompany(HttpServletRequest req, @RequestBody Company company, @PathVariable int idCompany) {
         User current = userRepo.findByUsername(JwtTokenUtil.obtainUserName(req)).get();
 
-        if (companyService.hasRightsToManipulateCompany(company, current)) {
-            companyRepo.deleteInBatch(Collections.singletonList(company));
-            return ResponseEntity.ok("Deleted");
+        return ResponseEntity.ok(companyRepo.getCompanyByIdAndAndIdUser(idCompany, current.getId())
+                .map(c -> {
+                            c.setName(company.getName());
+                            return companyRepo.save(c);
+                        }
+                ));
+    }
+
+    @DeleteMapping("/{idCompany}")
+    public ResponseEntity<?> deleteCompany(HttpServletRequest req, @PathVariable int idCompany) {
+        User current = userRepo.findByUsername(JwtTokenUtil.obtainUserName(req)).get();
+
+        if (companyRepo.getCompanyByIdAndAndIdUser(idCompany, current.getId()).isPresent()) {
+            companyRepo.deleteById(idCompany);
+            return ResponseEntity.ok("Deleted: " + idCompany);
         }
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        return ResponseEntity.ok(new ObjectNotFound("Company does not exist").getMessage());
     }
 
 

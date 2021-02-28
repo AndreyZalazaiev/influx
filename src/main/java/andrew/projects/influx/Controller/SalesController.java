@@ -2,7 +2,9 @@ package andrew.projects.influx.Controller;
 
 import andrew.projects.influx.Config.JwtTokenUtil;
 import andrew.projects.influx.Domain.*;
+import andrew.projects.influx.Exception.ObjectNotFound;
 import andrew.projects.influx.Repos.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,17 +15,11 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/sales")
+@RequiredArgsConstructor
 public class SalesController {
-    final SalesRepo salesRepo;
-    final UserRepo userRepo;
-    final CompanyRepo companyRepo;
-
-    public SalesController(SalesRepo salesRepo, UserRepo userRepo, CompanyRepo companyRepo) {
-        this.salesRepo = salesRepo;
-        this.userRepo = userRepo;
-        this.companyRepo = companyRepo;
-    }
-
+    private final SalesRepo salesRepo;
+    private final UserRepo userRepo;
+    private final CompanyRepo companyRepo;
 
     @GetMapping("/{idCompany}")
     public ResponseEntity<?> getSales(@PathVariable int idCompany) {
@@ -31,7 +27,7 @@ public class SalesController {
     }
 
     @PostMapping
-    public ResponseEntity<?> addSale(HttpServletRequest req, @RequestBody Sales sales) {
+    public ResponseEntity<?> createSale(HttpServletRequest req, @RequestBody Sales sales) {
         Optional<User> currentUser = userRepo.findByUsername(JwtTokenUtil.obtainUserName(req));
         Optional<Company> locatedCompany = companyRepo.findById(sales.getIdCompany());
 
@@ -40,7 +36,25 @@ public class SalesController {
                 return ResponseEntity.ok(salesRepo.save(sales));
             }
         }
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        return ResponseEntity.ok(new ObjectNotFound("Sale does not exist").getMessage());
+    }
+    @PutMapping("/{idSale}")
+    public ResponseEntity<?> updateSale(HttpServletRequest req, @RequestBody Sales sales,@PathVariable int idSale) {
+        Optional<User> currentUser = userRepo.findByUsername(JwtTokenUtil.obtainUserName(req));
+        Optional<Company> locatedCompany = companyRepo.findById(sales.getIdCompany());
+
+        if (locatedCompany.isPresent() && currentUser.isPresent()) {
+            if (locatedCompany.get().getIdUser().equals(currentUser.get().getId())) {
+
+                Sales stored = salesRepo.findById(idSale).get();
+                stored.setIdCompany(sales.getIdCompany());
+                stored.setDate(sales.getDate());
+                stored.setIdResource(sales.getIdResource());
+
+                return ResponseEntity.ok(salesRepo.save(stored));
+            }
+        }
+        return ResponseEntity.ok(new ObjectNotFound("Sale or company does not exist").getMessage());
     }
 
     @DeleteMapping("/{idSale}")
@@ -53,10 +67,11 @@ public class SalesController {
 
             if (locatedCompany.isPresent()) {
                 if (locatedCompany.get().getIdUser().equals(currentUser.get().getId())) {
-                    salesRepo.delete(recommendation.get());
+                    salesRepo.deleteById(idSale);
+                    return ResponseEntity.ok("Deleted sale with id "+idSale);
                 }
             }
         }
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        return ResponseEntity.ok(new ObjectNotFound("Sale does not exist").getMessage());
     }
 }

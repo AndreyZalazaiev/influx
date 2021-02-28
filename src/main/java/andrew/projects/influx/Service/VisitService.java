@@ -7,8 +7,6 @@ import andrew.projects.influx.Repos.VisitRepo;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Date;
 
 @Service
 public class VisitService {
@@ -19,7 +17,7 @@ public class VisitService {
     }
 
     public Visit updateVisitCounter(Visit v) {
-        Visit visit =visitRepo.findAllByIdCompany(v.getIdCompany()).get(0);
+        Visit visit = visitRepo.findAllByIdCompany(v.getIdCompany()).get(0);
         visit.setCount(visit.getCount() + 1);
         return visitRepo.save(visit);
     }
