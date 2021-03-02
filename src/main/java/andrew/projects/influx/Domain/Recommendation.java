@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-@Entity
 @AllArgsConstructor
+@Entity
 public class Recommendation extends BaseEntity {
     @Column(nullable = false)
     Integer idCompany;
@@ -24,4 +24,5 @@ public class Recommendation extends BaseEntity {
     LocalDateTime date;
     @Column(columnDefinition = "int default 7")
     private Integer period;
+
 }

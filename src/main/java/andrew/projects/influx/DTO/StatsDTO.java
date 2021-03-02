@@ -7,6 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class StatsDTO {
-    int idResource;
-    long count;
+    private int idResource;
+    private String name;
+    private long count;
 }

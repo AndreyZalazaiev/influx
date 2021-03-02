@@ -19,7 +19,7 @@ import java.util.UUID;
 @Service
 public class JwtUserDetailsService implements UserDetailsService {
     @Autowired
-    MailSender mailSender;
+    MailService mailService;
     @Autowired
     private UserRepo userRepo;
     @Autowired
