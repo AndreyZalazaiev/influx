@@ -5,6 +5,7 @@ import andrew.projects.influx.Domain.User;
 import andrew.projects.influx.Repos.RoleRepo;
 import andrew.projects.influx.Repos.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailSender;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -19,11 +20,11 @@ import java.util.UUID;
 @Service
 public class JwtUserDetailsService implements UserDetailsService {
     @Autowired
-    MailService mailService;
-    @Autowired
     private UserRepo userRepo;
     @Autowired
     private RoleRepo roleRepo;
+    @Autowired
+    private MailService mailService;
     @Autowired
     private PasswordEncoder bcryptEncoder;
 
@@ -44,7 +45,7 @@ public class JwtUserDetailsService implements UserDetailsService {
         newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
         newUser.setAuthorities(Arrays.asList(roleRepo.findById(2).get()));
         newUser.setEmailConfirmation(UUID.randomUUID().toString());
-        //mailSender.sendValidationCode(newUser);
+        mailService.sendValidationCode(newUser);
         return userRepo.save(newUser);
     }
 }
