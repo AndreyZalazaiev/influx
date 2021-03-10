@@ -36,7 +36,7 @@ public class RecommendationController {
         List<Recommendation> recommendations = new ArrayList<>();
         try {
             recommendations.add(recommendationService.getPriceRecommendations(idCompany));
-            recommendations.add(recommendationService.getRecommendations(idCompany));
+           // recommendations.add(recommendationService.getRecommendations(idCompany));
         } catch (NotEnoughData e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }

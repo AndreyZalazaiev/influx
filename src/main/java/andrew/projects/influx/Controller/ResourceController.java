@@ -9,7 +9,6 @@ import andrew.projects.influx.Repos.CompanyRepo;
 import andrew.projects.influx.Repos.ResourceRepo;
 import andrew.projects.influx.Repos.UserRepo;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,10 +48,11 @@ public class ResourceController {
         Optional<Resource> resourceStored = resourceRepo.findById(idResource);
 
         if (resourceStored.isPresent() && currentUser.isPresent()) {
-
+            resourceStored.get().setName(resource.getName());
+            resourceStored.get().setPrice(resource.getPrice());
             return ResponseEntity.ok(companyRepo.findById(resourceStored.get().getIdCompany()).get()
                     .getIdUser().equals(currentUser.get().getId())
-                    ? resourceRepo.save(resource)
+                    ? resourceRepo.save(resourceStored.get())
                     : (new ObjectNotFound("Resource does not exist").getMessage()));
         }
         return ResponseEntity.ok(new ObjectNotFound("Resource does not exist").getMessage());
@@ -67,7 +67,7 @@ public class ResourceController {
             if (companyRepo.findById(currentResource.get().getIdCompany()).get().getIdUser().equals(currentUser.get().getId())) {
 
                 resourceRepo.deleteById(idResource);
-                return ResponseEntity.ok("Deleted resource with id "+idResource);
+                return ResponseEntity.ok("Deleted resource with id " + idResource);
             }
         }
         return ResponseEntity.ok(new ObjectNotFound("Resource does not exist").getMessage());

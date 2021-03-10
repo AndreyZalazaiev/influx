@@ -5,7 +5,6 @@ import andrew.projects.influx.Config.JwtTokenUtil;
 import andrew.projects.influx.Domain.User;
 import andrew.projects.influx.Repos.UserRepo;
 import andrew.projects.influx.Service.JwtUserDetailsService;
-
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -48,7 +47,8 @@ public class JwtAuthenticationController {
         Optional<User> user = (userRepo.findByUsername(new JwtTokenUtil().getUsernameFromToken(token)));
         if (user.isPresent()) {
             return ResponseEntity.ok(user.get());
-        }  return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.badRequest().build();
     }
 
     @PostMapping(value = "/register")

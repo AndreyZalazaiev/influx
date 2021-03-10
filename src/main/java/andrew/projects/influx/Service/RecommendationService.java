@@ -47,6 +47,7 @@ public class RecommendationService implements RecommendationFunctional {
                         .append("Overpriced product: ").append(periodData.get(periodData.size() - 1).getName()).append(LINE_SEPARATOR)
                         .append("Unappreciated: ").append(periodData.get(0).getName()).toString())
                 .createRecommendation();
+
     }
 
     public Recommendation getRecommendations(int idCompany) throws NotEnoughData {

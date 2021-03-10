@@ -30,7 +30,6 @@ public class StatsService {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
                         (oldValue, newValue) -> oldValue, LinkedHashMap::new));
 
-
         resourceRepo.getAllByIdCompany(idCompany).stream()
                 .filter(r -> !sales.containsKey(r.getId()))
                 .forEach(resource -> sales.put(resource.getId(), 0L));
