@@ -1,5 +1,6 @@
 package andrew.projects.influx.Controller;
 
+
 import andrew.projects.influx.Domain.User;
 import andrew.projects.influx.Repos.UserRepo;
 import org.springframework.http.HttpStatus;
@@ -22,13 +23,13 @@ public class UserController {
         return ResponseEntity.ok(userRepo.findAll());
     }
 
-    @PutMapping("/idUser")
-    public ResponseEntity<?> updateUser(User u, @PathVariable int idUser) {
-        if (idUser != u.getId()) return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    @PutMapping("/{idUser}")
+    public ResponseEntity<?> updateUser(@RequestBody User u, @PathVariable int idUser) {
 
         Optional<User> storedUser = userRepo.findById(idUser);
         if (storedUser.isPresent()) {
             User user = storedUser.get();
+
             user.setEmail(u.getEmail());
             user.setUsername(u.getUsername());
             user.setAuthorities(u.getAuthorities());
